@@ -9,6 +9,7 @@
 # License: BSD
 
 # Abort on error
+. include/functions
 set -e
 
 if [ ! -f ./Kernel/arch/arm/boot/zImage ]; then
@@ -22,16 +23,26 @@ echo cp ./Kernel/arch/arm/boot/zImage tools/kexec-cwm-test-zip/
 cp ./Kernel/arch/arm/boot/zImage tools/kexec-cwm-test-zip/
 
 if [ ! -f tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary ]; then
-  if [ ! -f ../../../out/target/product/epicmtd/system/bin/updater ]; then
+  if [ -f ../../../out/target/product/epicmtd/system/bin/updater ]; then
+    echo cp ../../../out/target/product/epicmtd/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
+    cp ../../../out/target/product/epicmtd/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
+  elif [ -f ../../../out/target/product/epicmtd/symbols/system/bin/updater ]; then
+    # Check if unstripped updater is built (-userdebug), if so copy and strip it
+    echo cp ../../../out/target/product/epicmtd/symbols/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
+    cp ../../../out/target/product/epicmtd/symbols/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
+    find_toolchain
+    echo $TCPATH/arm-eabi-strip tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
+    $TCPATH/arm-eabi-strip tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
+  else
     echo "ERROR: File not found: ../../../out/target/product/epicmtd/system/bin/updater"
+    echo "                                             OR"
+    echo "                       ../../../out/target/product/epicmtd/symbols/system/bin/updater"
     echo 
-    echo "       You probably need to 'make bacon' in order to build it, or manually put the binary at"
+    echo "       You probably need to 'make bacon' in order to build it, or manually put a binary at"
     echo "       tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary"
     echo
     exit 255
   fi
-  echo cp ../../../out/target/product/epicmtd/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
-  cp ../../../out/target/product/epicmtd/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
 fi
 
 rm -f boot_zImage.zip
@@ -40,5 +51,10 @@ zip -r ../../boot_zImage.zip *
 cd - > /dev/null
 
 echo
-echo "SUCCESS: Copy boot_zImage.zip to your /sdcard then CWM flash to safely test your local kernel build."
+echo "SUCCESS: boot_zImage.zip complete."
+echo 
+echo "Suggested next steps to test your local kernel build..."
+echo "    adb push boot_zImage.zip /sdcard/"
+echo "    adb reboot recovery"
+echo "Then fakeflash boot_zImage.zip in CWM."
 echo
