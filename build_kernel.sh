@@ -1,62 +1,19 @@
 #!/bin/bash
 #
 # This script builds the CM kernel and copies it to the Epic MTD device tree.
-# You must specify the path to your device tree.
+# If you are building outside of a CM tree, you must specify the path to your
+# device tree.
 #
-#   export EPICMTDCM7PATH=/path/to/your/cm7repo >> ~/.bashrc
-#   export EPICMTDCM9PATH=/path/to/your/cm9repo >> ~/.bashrc
+#   export CMPATH=/path/to/your/cmrepo >> ~/.bashrc
 #
 
 #uncomment to add custom version string
 #export KBUILD_BUILD_VERSION=""
 DEFCONFIG_STRING=cyanogenmod_epicmtd_defconfig
-DEVICEPATH=device/samsung/epicmtd
-TOOLCHAINPATH=/toolchain/arm-eabi-4.4.3/bin
 
 # Shouldn't need to modify anything below here
-CMSEARCHPATH="../../.."
-unset CMBASEPATH
-[ -e ~/.bashrc ] && . ~/.bashrc
-
-# Detect kernel branch from git and use CM path from environment if it exists
-if git branch | grep -q ^\*.*gingerbread; then
-    CMVER=7
-    [ -n "$EPICMTDCM7PATH" ] && CMSEARCHPATH="$EPICMTDCM7PATH $CMSEARCHPATH"
-elif git branch | grep ^\*.*ICS; then
-    CMVER=9
-    [ -n "$EPICMTDCM9PATH" ] && CMSEARCHPATH="$EPICMTDCM9PATH $CMSEARCHPATH"
-fi
-
-# Detect host OS
-case "`uname`" in 
-    Linux)
-        PREBUILTARCH=linux-x86
-        ;;
-    Darwin)
-        PREBUILTARCH=darwin-x86
-        ;;
-esac
-
-# Find CM path for toolchain and target for kernel output
-for p in $CMSEARCHPATH; do
-    echo "Checking $p/prebuilt/$PREBUILTARCH/$TCPATH"
-    if [ -d $p/prebuilt/$PREBUILTARCH/$TCPATH ]; then
-        cd $p
-        CMBASEPATH=`pwd`
-        cd -
-        TCPATH=${CMBASEPATH}/prebuilt/$PREBUILTARCH/$TOOLCHAINPATH
-        DPATH=${CMBASEPATH}/${DEVICEPATH}
-        break
-    fi
-done    
-
-# Sanity Check
-if [ -z "$CMBASEPATH" ]; then
-    echo "ERROR: Base CM path not specified.  You should probably set it in your ~/.bashrc."
-    echo "    Example:"
-    echo "    echo \"export EPICMTDCM${CMVER}PATH=/path/to/your/cmrepo\" >> ~/.bashrc"
-    exit 255
-fi
+. include/functions
+find_toolchain
 
 # Display Environment
 
@@ -102,7 +59,12 @@ case "$1" in
 esac
 
 if [ "$CPU_JOB_NUM" = "" ] ; then
+    # Detect number of threads
+    if [ -f /proc/cpuinfo ]; then
+        CPU_JOB_NUM=$(cat /proc/cpuinfo  |grep ^processor |wc -l)
+    else
 	CPU_JOB_NUM=4
+    fi
 fi
 
 TARGET_LOCALE="vzw"
