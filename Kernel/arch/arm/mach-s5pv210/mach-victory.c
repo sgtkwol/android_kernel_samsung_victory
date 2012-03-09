@@ -367,17 +367,13 @@ static struct s3cfb_lcd nt35580 = {
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (12288 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (9900 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (12288 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (13312 * SZ_1K) // 13MB
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (21504 * SZ_1K) // 21MB
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (24064 * SZ_1K) // 23.5MB
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (24064 * SZ_1K) // 23.5MB
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMD (800 * 480 * 4 * \
 		(CONFIG_FB_S3C_NR_BUFFERS + \
 		(CONFIG_FB_S3C_NUM_OVLY_WIN * \
 		 CONFIG_FB_S3C_NUM_BUF_OVLY_WIN)))
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (5012 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_PMEM (5550 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_GPU1 (3300 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_ADSP (1500 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_TEXTSTREAM  (3000 * SZ_1K)
 static struct s5p_media_device victory_media_devs[] = {
 	[0] = {
 		.id = S5P_MDEV_FIMD,
@@ -428,34 +424,6 @@ static struct s5p_media_device victory_media_devs[] = {
 		.memsize = S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG,
 		.paddr = 0,
 	},
-	[7] = {
-		.id = S5P_MDEV_PMEM,
-		.name = "pmem",
-		.bank = 0,
-		.memsize = S5PV210_VIDEO_SAMSUNG_MEMSIZE_PMEM,
-		.paddr = 0,
-	},
-	[8] = {
-		.id = S5P_MDEV_PMEM_GPU1,
-		.name = "pmem_gpu1",
-		.bank = 0,
-		.memsize = S5PV210_VIDEO_SAMSUNG_MEMSIZE_GPU1,
-		.paddr = 0,
-	},	
-	[9] = {
-		.id = S5P_MDEV_PMEM_ADSP,
-		.name = "pmem_adsp",
-		.bank = 0,
-		.memsize = S5PV210_VIDEO_SAMSUNG_MEMSIZE_ADSP,
-		.paddr = 0,
-	},		
-        [10] = {
-                .id = S5P_MDEV_TEXSTREAM,
-                .name = "s3c_bc",
-                .bank = 1,
-                .memsize = S5PV210_VIDEO_SAMSUNG_MEMSIZE_TEXTSTREAM,
-                .paddr = 0,
-        },
 };
 
 static struct regulator_consumer_supply ldo3_consumer[] = {
