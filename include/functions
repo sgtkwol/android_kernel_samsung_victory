@@ -40,3 +40,11 @@ if [ -z "$CMBASEPATH" ]; then
     exit 255
 fi
 }
+
+# Verbose cp
+vcp() {
+echo cp $@
+if ! cp $@; then
+  exit 1
+fi
+}

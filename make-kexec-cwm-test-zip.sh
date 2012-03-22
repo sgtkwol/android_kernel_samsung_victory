@@ -19,17 +19,14 @@ if [ ! -f ./Kernel/arch/arm/boot/zImage ]; then
   echo
   exit 255
 fi
-echo cp ./Kernel/arch/arm/boot/zImage tools/kexec-cwm-test-zip/
-cp ./Kernel/arch/arm/boot/zImage tools/kexec-cwm-test-zip/
+vcp ./Kernel/arch/arm/boot/zImage tools/kexec-cwm-test-zip/
 
 if [ ! -f tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary ]; then
   if [ -f ../../../out/target/product/epicmtd/system/bin/updater ]; then
-    echo cp ../../../out/target/product/epicmtd/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
-    cp ../../../out/target/product/epicmtd/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
+    vcp ../../../out/target/product/epicmtd/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
   elif [ -f ../../../out/target/product/epicmtd/symbols/system/bin/updater ]; then
     # Check if unstripped updater is built (-userdebug), if so copy and strip it
-    echo cp ../../../out/target/product/epicmtd/symbols/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
-    cp ../../../out/target/product/epicmtd/symbols/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
+    vcp ../../../out/target/product/epicmtd/symbols/system/bin/updater tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
     find_toolchain
     echo $TCPATH/arm-eabi-strip tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
     $TCPATH/arm-eabi-strip tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary
