@@ -3159,7 +3159,7 @@ static struct platform_device *victory_devices[] __initdata = {
 	&sec_device_dpram,
 #ifdef CONFIG_VIDEO_FIMC
 	&s3c_device_fimc0,
-    &s3c_device_fimc1,
+	&s3c_device_fimc1,
 	&s3c_device_fimc2,
 #endif
 
@@ -3488,7 +3488,7 @@ static void __init victory_machine_init(void)
 #ifdef CONFIG_VIDEO_FIMC
 	/* fimc */
 	s3c_fimc0_set_platdata(&fimc_plat_lsi);
-    s3c_fimc1_set_platdata(&fimc_plat_lsi);
+	s3c_fimc1_set_platdata(&fimc_plat_lsi);
 	s3c_fimc2_set_platdata(&fimc_plat_lsi);
 #endif
 
