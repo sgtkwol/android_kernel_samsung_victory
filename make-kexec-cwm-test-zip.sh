@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# This script takes your locally built Kernel/arch/arm/boot/zImage and
+# This script takes your zImage built in ../../../out/target/product/epicmtd/obj/KERNEL_OBJ/arch/arm/boot/ and
 # stuffs it into boot_zImage.zip, ready for kexec boot from CWM.
 # This allows rapid testing of your local kernel builds.
 #
@@ -12,14 +12,14 @@
 . include/functions
 set -e
 
-if [ ! -f ./Kernel/arch/arm/boot/zImage ]; then
-  echo "ERROR: File not found: ./Kernel/arch/arm/boot/zImage"
+if [ ! -f ../../../out/target/product/epicmtd/obj/KERNEL_OBJ/arch/arm/boot/zImage ]; then
+  echo "ERROR: File not found: ../../../out/target/product/epicmtd/obj/KERNEL_OBJ/arch/arm/boot/zImage"
   echo 
-  echo "       Run build_kernel.sh first?"
+  echo "       Run make out/target/product/epicmtd/kernel?"
   echo
   exit 255
 fi
-vcp ./Kernel/arch/arm/boot/zImage tools/kexec-cwm-test-zip/
+vcp ../../../out/target/product/epicmtd/obj/KERNEL_OBJ/arch/arm/boot/zImage tools/kexec-cwm-test-zip/
 
 if [ ! -f tools/kexec-cwm-test-zip/META-INF/com/google/android/update-binary ]; then
   if [ -f ../../../out/target/product/epicmtd/system/bin/updater ]; then

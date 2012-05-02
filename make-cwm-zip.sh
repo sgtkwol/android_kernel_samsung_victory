@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# This script taken your locally built Kernel/arch/arm/boot/zImage and
+# This script takes your zImage built in ../../../out/target/product/epicmtd/obj/KERNEL_OBJ/arch/arm/boot/ and
 # stuffs it into epicmtd-kernel.zip, ready to flash in CWM.
 #
 # Copyright 2012 Warren Togami <wtogami@gmail.com>
@@ -11,10 +11,10 @@
 . include/functions
 set -e
 
-if [ ! -f ./Kernel/arch/arm/boot/zImage ]; then
-  echo "ERROR: File not found: ./Kernel/arch/arm/boot/zImage"
+if [ ! -f ../../../out/target/product/epicmtd/obj/KERNEL_OBJ/arch/arm/boot/zImage ]; then
+  echo "ERROR: File not found: ../../../out/target/product/epicmtd/obj/KERNEL_OBJ/arch/arm/boot/zImage"
   echo 
-  echo "       Run build_kernel.sh first?"
+  echo "       Run make out/target/product/epicmtd/kernel?"
   echo
   exit 255
 fi
