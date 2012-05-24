@@ -54,14 +54,35 @@ static DEFINE_MUTEX(set_freq_lock);
 static const unsigned int DEFAULT_MAX_FREQ = 1000*1000;
 
 /* frequency */
-static struct cpufreq_frequency_table freq_table[] = {
+static struct cpufreq_frequency_table freq_table[NUM_FREQ + 1] = {
+	{LM4, 1500*1000},
+	{LM3, 1400*1000},
+	{LM2, 1300*1000},
 	{LM1, 1200*1000},
+	{LM0, 1100*1000},
 	{L0, 1000*1000},
 	{L1, 800*1000},
 	{L2, 400*1000},
 	{L3, 200*1000},
 	{L4, 100*1000},
 	{0, CPUFREQ_TABLE_END},
+};
+
+/* UV */
+extern int exp_UV_mV[NUM_FREQ];
+
+unsigned int freq_uv_table[NUM_FREQ][3] = {
+	//frequency, stock voltage, current voltage
+	{1500000, 1500, 1500},
+	{1400000, 1450, 1450},
+	{1300000, 1400, 1400},
+	{1200000, 1350, 1350},
+	{1100000, 1300, 1300},
+	{1000000, 1275, 1275},
+	{800000, 1200, 1200},
+	{400000, 1050, 1050},
+	{200000, 950, 950},
+	{100000, 950, 950}
 };
 
 struct s5pv210_dvs_conf {
@@ -78,11 +99,27 @@ static unsigned int g_dvfslockval[DVFS_LOCK_TOKEN_NUM];
 //static DEFINE_MUTEX(dvfs_high_lock);
 #endif
 
-const unsigned long arm_volt_max = 1350000;
+const unsigned long arm_volt_max = 1500000;
 const unsigned long int_volt_max = 1250000;
 
-static struct s5pv210_dvs_conf dvs_conf[] = {
+static struct s5pv210_dvs_conf dvs_conf[NUM_FREQ] = {
+	[LM4] = { //1.5GHz
+		.arm_volt   = 1500000,
+		.int_volt   = 1250000,
+	},
+	[LM3] = { //1.4GHz
+		.arm_volt   = 1450000,
+		.int_volt   = 1250000,
+	},
+	[LM2] = { //1.3GHz
+		.arm_volt   = 1400000,
+		.int_volt   = 1200000,
+	},
 	[LM1] = { /* 1.2GHz */
+		.arm_volt   = 1300000,
+		.int_volt   = 1125000,
+	},
+	[LM0] = { //1.1GHz
 		.arm_volt   = 1300000,
 		.int_volt   = 1125000,
 	},
@@ -108,12 +145,20 @@ static struct s5pv210_dvs_conf dvs_conf[] = {
 	},
 };
 
-static u32 clkdiv_val[][11] = {
+static u32 clkdiv_val[NUM_FREQ][11] = {
 	/*{ APLL, A2M, HCLK_MSYS, PCLK_MSYS,
 	 * HCLK_DSYS, PCLK_DSYS, HCLK_PSYS, PCLK_PSYS, ONEDRAM,
 	 * MFC, G3D }
 	 */
+	/* LM4 : [1500/200/200/100][166/83][133/66][200/200] */
+	{0, 6.5, 6.5, 1, 3, 1, 4, 1, 3, 0, 0},
+	/* LM3 : [1400/200/200/100][166/83][133/66][200/200] */
+	{0, 6, 6, 1, 3, 1, 4, 1, 3, 0, 0},
+	/* LM2 : [1300/200/200/100][166/83][133/66][200/200] */
+	{0, 6, 6, 1, 3, 1, 4, 1, 3, 0, 0},
 	/* LM1 : [1200/200/200/100][166/83][133/66][200/200] */
+	{0, 5, 5, 1, 3, 1, 4, 1, 3, 0, 0},
+	/* LM0 : [1100/200/200/100][166/83][133/66][200/200] */
 	{0, 5, 5, 1, 3, 1, 4, 1, 3, 0, 0},
 	/* L0 : [1000/200/200/100][166/83][133/66][200/200] */
 	{0, 4, 4, 1, 3, 1, 4, 1, 3, 0, 0},
@@ -127,7 +172,40 @@ static u32 clkdiv_val[][11] = {
 	{7, 7, 0, 0, 7, 0, 9, 0, 7, 0, 0},
 };
 
-static struct s3c_freq clk_info[] = {
+static struct s3c_freq clk_info[NUM_FREQ] = {
+	[LM4] = {	/* LM4: 1.5GHz */
+		.fclk       = 1500000,
+		.armclk     = 1500000,
+		.hclk_tns   = 0,
+		.hclk       = 133000,
+		.pclk       = 66000,
+		.hclk_msys  = 200000,
+		.pclk_msys  = 100000,
+		.hclk_dsys  = 166750,
+		.pclk_dsys  = 83375,
+	},
+	[LM3] = {	/* LM3: 1.4GHz */
+		.fclk       = 1400000,
+		.armclk     = 1400000,
+		.hclk_tns   = 0,
+		.hclk       = 133000,
+		.pclk       = 66000,
+		.hclk_msys  = 200000,
+		.pclk_msys  = 100000,
+		.hclk_dsys  = 166750,
+		.pclk_dsys  = 83375,
+	},
+	[LM2] = {	/* LM2: 1.3GHz */
+		.fclk       = 1300000,
+		.armclk     = 1300000,
+		.hclk_tns   = 0,
+		.hclk       = 133000,
+		.pclk       = 66000,
+		.hclk_msys  = 185714,
+		.pclk_msys  = 92857,
+		.hclk_dsys  = 166750,
+		.pclk_dsys  = 83375,
+	},
 	[LM1] = {	/* LM1: 1.2GHz */
 		.fclk       = 1200000,
 		.armclk     = 1200000,
@@ -136,6 +214,17 @@ static struct s3c_freq clk_info[] = {
 		.pclk       = 66000,
 		.hclk_msys  = 200000,
 		.pclk_msys  = 100000,
+		.hclk_dsys  = 166750,
+		.pclk_dsys  = 83375,
+	},
+	[LM0] = {	/* LM0: 1.1GHz */
+		.fclk       = 1100000,
+		.armclk     = 1100000,
+		.hclk_tns   = 0,
+		.hclk       = 133000,
+		.pclk       = 66000,
+		.hclk_msys  = 183333,
+		.pclk_msys  = 91667,
 		.hclk_dsys  = 166750,
 		.pclk_dsys  = 83375,
 	},
@@ -299,9 +388,25 @@ static void s5pv210_cpufreq_clksrcs_MPLL2APLL(unsigned int index,
 	 * 2-1. Set PMS values
 	 */
 	switch (index) {
+	case LM4:
+		/* APLL FOUT becomes 1500 Mhz */
+		__raw_writel(PLL45XX_APLL_VAL_1500, S5P_APLL_CON);
+		break;
+	case LM3:
+		/* APLL FOUT becomes 1400 Mhz */
+		__raw_writel(PLL45XX_APLL_VAL_1400, S5P_APLL_CON);
+		break;
+	case LM2:
+		/* APLL FOUT becomes 1300 Mhz */
+		__raw_writel(PLL45XX_APLL_VAL_1300, S5P_APLL_CON);
+		break;
 	case LM1:
 		/* APLL FOUT becomes 1200 Mhz */
 		__raw_writel(PLL45XX_APLL_VAL_1200, S5P_APLL_CON);
+		break;
+	case LM0:
+		/* APLL FOUT becomes 1100 Mhz */
+		__raw_writel(PLL45XX_APLL_VAL_1100, S5P_APLL_CON);
 		break;
 	case L0:
 		/* APLL FOUT becomes 1000 Mhz */
@@ -491,7 +596,8 @@ static int s5pv210_cpufreq_target(struct cpufreq_policy *policy,
 	if (s3c_freqs.freqs.new == s3c_freqs.freqs.old && !first_run)
 		goto out;
 
-	arm_volt = dvs_conf[index].arm_volt;
+	arm_volt = (dvs_conf[index].arm_volt - (exp_UV_mV[index] * 1000));
+	freq_uv_table[index][2] = (int)(arm_volt/1000);
 	int_volt = dvs_conf[index].int_volt;
 
 	/* New clock information update */
@@ -678,7 +784,8 @@ static int s5pv210_cpufreq_target(struct cpufreq_policy *policy,
 	memcpy(&s3c_freqs.old, &s3c_freqs.new, sizeof(struct s3c_freq));
 	cpufreq_debug_printk(CPUFREQ_DEBUG_DRIVER, KERN_INFO,
 			"cpufreq: Performance changed[L%d]\n", index);
-	previous_arm_volt = dvs_conf[index].arm_volt;
+	previous_arm_volt = (dvs_conf[index].arm_volt - (exp_UV_mV[index] * 1000));
+	freq_uv_table[index][2] = (int)(previous_arm_volt/1000);
 
 	if (first_run)
 		first_run = false;
@@ -721,7 +828,8 @@ static int s5pv210_cpufreq_resume(struct cpufreq_policy *policy)
 
 	memcpy(&s3c_freqs.old, &clk_info[level],
 			sizeof(struct s3c_freq));
-	previous_arm_volt = dvs_conf[level].arm_volt;
+	previous_arm_volt = (dvs_conf[level].arm_volt - (exp_UV_mV[level] * 1000));
+	freq_uv_table[level][2] = (int)(previous_arm_volt/1000);
 
 	return ret;
 }
@@ -789,7 +897,8 @@ static int __init s5pv210_cpufreq_driver_init(struct cpufreq_policy *policy)
 
 	memcpy(&s3c_freqs.old, &clk_info[level],
 			sizeof(struct s3c_freq));
-	previous_arm_volt = dvs_conf[level].arm_volt;
+	previous_arm_volt = (dvs_conf[level].arm_volt - (exp_UV_mV[level] * 1000));
+	freq_uv_table[level][2] = (int)(previous_arm_volt/1000);
 
 #ifdef CONFIG_DVFS_LIMIT
         for(i = 0; i < DVFS_LOCK_TOKEN_NUM; i++)
