@@ -1095,9 +1095,9 @@
 #define WM8994_IN1R_ZC_MASK                     0x0040  /* IN1R_ZC */
 #define WM8994_IN1R_ZC_SHIFT                         6  /* IN1R_ZC */
 #define WM8994_IN1R_ZC_WIDTH                         1  /* IN1R_ZC */
-#define WM8994_IN1R_VOL_30dB                    0x001F
-#define WM8994_IN1R_VOL_25_5dB                0x001C
-#define WM8994_IN1R_VOL_21dB                    0x0019
+#define WM8994_IN1R_VOL_30dB                    0x0023
+#define WM8994_IN1R_VOL_25_5dB                0x001F
+#define WM8994_IN1R_VOL_21dB                    0x001C
 #define WM8994_IN1R_VOL_16_5dB                0x0016
 #define WM8994_IN1R_VOL_12dB                    0x0013
 #define WM8994_IN1R_VOL_7_5dB                  0x0010
